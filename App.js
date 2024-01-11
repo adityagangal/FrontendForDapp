@@ -3,75 +3,65 @@ import { Form, Button, Container, Row, Col } from 'react-bootstrap';
 import {
   whitelistAccount,
   unwhitelistAccount,
-  getWhitelistedAccounts,
+  //getWhitelistedAccounts,
   distributeToWhitelist,
   lockTransfer,
   unlockTransfer,
 } from './api'; // Import API functions
 
-const App = () => {
-  const [senderAddress, setSenderAddress] = useState('');
-  const [whitelistedAccounts, setWhitelistedAccounts] = useState([]);
-  const [whitelistAccountAddress, setWhitelistAccountAddress] = useState('');
-  const [unwhitelistAccountAddress, setUnwhitelistAccountAddress] = useState('');
-  const [amountToDistribute, setAmountToDistribute] = useState('');
+function App() {
+  const [walletAddress, setWalletAddress] = useState('');
 
-  // Fetch whitelisted accounts on component mount
   useEffect(() => {
-    const fetchWhitelistedAccounts = async () => {
+    getCurrentWalletConnected();
+    addWalletListener();
+  }, [walletAddress]);
+
+  const connectWallet = async () => {
+    if (typeof window !== 'undefined' && typeof window.ethereum !== 'undefined') {
       try {
-        const response = await getWhitelistedAccounts();
-        setWhitelistedAccounts(response.whitelistedAccounts);
-      } catch (error) {
-        console.error('Error fetching whitelisted accounts:', error);
+        const accounts = await window.ethereum.request({
+          method: 'eth_requestAccounts',
+        });
+        setWalletAddress(accounts[0]);
+        console.log(accounts[0]);
+      } catch (err) {
+        console.error(err.message);
       }
-    };
-
-    fetchWhitelistedAccounts();
-  }, []);
-
-  const handleWhitelistAccount = async () => {
-    try {
-      const response = await whitelistAccount(senderAddress, whitelistAccountAddress);
-      console.log('Transaction Hash:', response.transactionHash);
-    } catch (error) {
-      console.error('Error whitelisting account:', error);
+    } else {
+      console.log('Please install MetaMask');
     }
   };
 
-  const handleUnwhitelistAccount = async () => {
-    try {
-      const response = await unwhitelistAccount(senderAddress, unwhitelistAccountAddress);
-      console.log('Transaction Hash:', response.transactionHash);
-    } catch (error) {
-      console.error('Error unwhitelisting account:', error);
+  const getCurrentWalletConnected = async () => {
+    if (typeof window !== 'undefined' && typeof window.ethereum !== 'undefined') {
+      try {
+        const accounts = await window.ethereum.request({
+          method: 'eth_accounts',
+        });
+        if (accounts.length > 0) {
+          setWalletAddress(accounts[0]);
+          console.log(accounts[0]);
+        } else {
+          console.log('Connect to MetaMask using the Connect button');
+        }
+      } catch (err) {
+        console.error(err.message);
+      }
+    } else {
+      console.log('Please install MetaMask');
     }
   };
 
-  const handleDistributeToWhitelist = async () => {
-    try {
-      const response = await distributeToWhitelist(senderAddress, amountToDistribute);
-      console.log('Transaction Hash:', response.transactionHash);
-    } catch (error) {
-      console.error('Error distributing tokens:', error);
-    }
-  };
-
-  const handleLockTransfer = async () => {
-    try {
-      const response = await lockTransfer(senderAddress);
-      console.log('Transaction Hash:', response.transactionHash);
-    } catch (error) {
-      console.error('Error locking transfers:', error);
-    }
-  };
-
-  const handleUnlockTransfer = async () => {
-    try {
-      const response = await unlockTransfer(senderAddress);
-      console.log('Transaction Hash:', response.transactionHash);
-    } catch (error) {
-      console.error('Error unlocking transfers:', error);
+  const addWalletListener = async () => {
+    if (typeof window !== 'undefined' && typeof window.ethereum !== 'undefined') {
+      window.ethereum.on('accountsChanged', (accounts) => {
+        setWalletAddress(accounts[0]);
+        console.log(accounts[0]);
+      });
+    } else {
+      setWalletAddress('');
+      console.log('Please install MetaMask');
     }
   };
 
@@ -83,14 +73,9 @@ const App = () => {
           <Form>
             <Form.Group controlId="whitelistAccountAddress">
               <Form.Label>Account to Whitelist</Form.Label>
-              <Form.Control
-                type="text"
-                placeholder="Enter account address"
-                value={whitelistAccountAddress}
-                onChange={(e) => setWhitelistAccountAddress(e.target.value)}
-              />
+              <Form.Control type="text" placeholder="Enter account address" />
             </Form.Group>
-            <Button variant="primary" onClick={handleWhitelistAccount}>
+            <Button variant="primary" onClick={whitelistAccount}>
               Whitelist Account
             </Button>
           </Form>
@@ -101,14 +86,9 @@ const App = () => {
           <Form>
             <Form.Group controlId="unwhitelistAccountAddress">
               <Form.Label>Account to Unwhitelist</Form.Label>
-              <Form.Control
-                type="text"
-                placeholder="Enter account address"
-                value={unwhitelistAccountAddress}
-                onChange={(e) => setUnwhitelistAccountAddress(e.target.value)}
-              />
+              <Form.Control type="text" placeholder="Enter account address" />
             </Form.Group>
-            <Button variant="primary" onClick={handleUnwhitelistAccount}>
+            <Button variant="primary" onClick={unwhitelistAccount}>
               Unwhitelist Account
             </Button>
           </Form>
@@ -116,28 +96,23 @@ const App = () => {
       </Row>
 
       <Row>
-        <Col>
+        {/* <Col>
           <h2>Get Whitelisted Accounts</h2>
           <ul>
-            {whitelistedAccounts.map((account) => (
+            {getWhitelistedAccounts().map((account) => (
               <li key={account}>{account}</li>
             ))}
           </ul>
-        </Col>
+        </Col> */}
 
         <Col>
           <h2>Distribute to Whitelist</h2>
           <Form>
             <Form.Group controlId="amountToDistribute">
               <Form.Label>Amount to Distribute</Form.Label>
-              <Form.Control
-                type="number"
-                placeholder="Enter amount"
-                value={amountToDistribute}
-                onChange={(e) => setAmountToDistribute(e.target.value)}
-              />
+              <Form.Control type="number" placeholder="Enter amount" />
             </Form.Group>
-            <Button variant="primary" onClick={handleDistributeToWhitelist}>
+            <Button variant="primary" onClick={distributeToWhitelist}>
               Distribute to Whitelist
             </Button>
           </Form>
@@ -147,20 +122,33 @@ const App = () => {
       <Row>
         <Col>
           <h2>Lock Transfer</h2>
-          <Button variant="primary" onClick={handleLockTransfer}>
+          <Button variant="primary" onClick={lockTransfer}>
             Lock Transfer
           </Button>
         </Col>
 
         <Col>
           <h2>Unlock Transfer</h2>
-          <Button variant="primary" onClick={handleUnlockTransfer}>
+          <Button variant="primary" onClick={unlockTransfer}>
             Unlock Transfer
           </Button>
         </Col>
       </Row>
+
+      <Row>
+        <Col>
+          <h2>Wallet Connection</h2>
+          <Button variant="primary" onClick={connectWallet}>
+            Connect Wallet
+          </Button>
+          <p>
+            {walletAddress &&
+              `Connected: ${walletAddress.substring(0, 6)}...${walletAddress.substring(38)}`}
+          </p>
+        </Col>
+      </Row>
     </Container>
   );
-};
+}
 
 export default App;
