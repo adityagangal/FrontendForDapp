@@ -26,14 +26,14 @@ export const unwhitelistAccount = async (senderAddress, account) => {
   }
 };
 
-export const getWhitelistedAccounts = async () => {
-  try {
-    const response = await axios.get(`${API_BASE_URL}/getWhitelistedAccounts`);
-    return response.data;
-  } catch (error) {
-    throw error;
-  }
-};
+// export const getWhitelistedAccounts = async () => {
+//   try {
+//     const response = await axios.get(`${API_BASE_URL}/getWhitelistedAccounts`);
+//     return response.data;
+//   } catch (error) {
+//     throw error;
+//   }
+// };
 
 export const distributeToWhitelist = async (senderAddress, amount) => {
   try {
