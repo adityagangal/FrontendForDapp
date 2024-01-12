@@ -1,0 +1,50 @@
+/* Card.css */
+
+.card {
+    padding: 20px;
+    margin: 10px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    background: #fff;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  
+  .cardHeading {
+    font-size: 18px;
+    color: #333;
+    margin-bottom: 10px; /* Add margin-bottom to create space below heading */
+  }
+  
+  .cardContent {
+    margin-bottom: 10px; /* Add margin-bottom to create space below label content */
+  }
+  
+  .cardButton {
+    padding: 10px;
+    cursor: pointer;
+    background: #4caf50;
+    color: #fff;
+    border: none;
+  }
+  
+  /* Add margins to label */
+  .label {
+    margin-bottom: 5px;
+  }
+  
+  /* Responsive Styles */
+  @media (min-width: 600px) {
+    .card {
+      flex-direction: row;
+      align-items: center;
+    }
+  
+    .cardContent {
+      margin-right: 20px;
+      margin-bottom: 0; /* Reset margin for content on wider screens */
+    }
+  }
+  
